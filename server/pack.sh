@@ -1,7 +1,7 @@
 #!/bin/bash
 cd $(dirname $0)
 
-rm -f $SERVER_JAR_PATH
+rm -f $SERVER_JAR
 
-sbt compile assembly package
+sbt assembly
 

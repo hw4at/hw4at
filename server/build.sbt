@@ -16,6 +16,8 @@ libraryDependencies += "io.vertx" %% "vertx-mysql-postgresql-client-scala"   % v
 
 packageOptions += ManifestAttributes(("Main-Verticle", "scala:HttpVerticle"))
 
+assemblyJarName in assembly := "surl-server.jar"
+
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 
 assemblyMergeStrategy in assembly := {
