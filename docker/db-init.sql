@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS test (
+  id int,
+  name VARCHAR(1024),
+  created DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id, name),
+  INDEX test_id_ix (id)
+);
+
+INSERT IGNORE INTO test (id, name) VALUES (1, 'a');
+INSERT IGNORE INTO test (id, name) VALUES (2, 'b');
+
