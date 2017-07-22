@@ -1,7 +1,7 @@
 package surl.server
 
 object Main {
-  def main(args: Array[String]) {
+  def main22(args: Array[String]) {
     println("I'm up!")
     while (true) {
       println("Running ...")

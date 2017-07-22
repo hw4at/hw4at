@@ -7,12 +7,13 @@ class EchoHandler extends Handler[RoutingContext] {
   println("EchoHandler is created!")
 
   override def handle(context: RoutingContext): Unit = {
+    println("EchoHandler is called!")
     val message: String = context.request.getParam("msg")
     context.response.setStatusCode(200)
     if (message != null && !message.isEmpty) {
       context.response.end(message)
-    } else {
-      context.response.end()
+      } else {
+        context.response.end()
+      }
     }
-  }
 }

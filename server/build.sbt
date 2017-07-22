@@ -4,7 +4,7 @@ name := "server"
 
 version := "1.0"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.1"
 val vertxVersion = "3.4.2"
 
 libraryDependencies += "io.vertx" %  "vertx-codegen"                         % vertxVersion
@@ -14,7 +14,8 @@ libraryDependencies += "io.vertx" %% "vertx-sql-common-scala"                % v
 libraryDependencies += "io.vertx" %% "vertx-jdbc-client-scala"               % vertxVersion
 libraryDependencies += "io.vertx" %% "vertx-mysql-postgresql-client-scala"   % vertxVersion
 
-packageOptions += ManifestAttributes(("Main-Verticle", "surl.server.SurlVerticle"))
+mainClass in assembly := Some("io.vertx.core.Launcher")
+packageOptions += ManifestAttributes(("Main-Verticle", "scala:surl.server.SurlVerticle"))
 
 assemblyJarName in assembly := "surl-server.jar"
 
