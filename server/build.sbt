@@ -14,7 +14,7 @@ libraryDependencies += "io.vertx" %% "vertx-sql-common-scala"                % v
 libraryDependencies += "io.vertx" %% "vertx-jdbc-client-scala"               % vertxVersion
 libraryDependencies += "io.vertx" %% "vertx-mysql-postgresql-client-scala"   % vertxVersion
 
-packageOptions += ManifestAttributes(("Main-Verticle", "scala:surl.server.SurlVerticle"))
+packageOptions += ManifestAttributes(("Main-Verticle", "surl.server.SurlVerticle"))
 
 assemblyJarName in assembly := "surl-server.jar"
 
