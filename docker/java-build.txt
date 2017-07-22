@@ -1,0 +1,10 @@
+FROM openjdk:8u131-jdk
+
+RUN mkdir /data
+
+WORKDIR /data
+
+CMD ["bash"]
+
+ENV TZ GMT
+
