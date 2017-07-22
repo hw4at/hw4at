@@ -3,6 +3,8 @@ package surl.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.FileSystem;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -24,8 +26,16 @@ public class ShortURLVerticle extends AbstractVerticle {
             logger.error(t.getMessage(), t);
         });
 
-        initServices(vertx, startFuture);
-        vertx.createHttpServer().requestHandler(req -> req.response().end("Hi")).listen(ConfigurationHolder.config.getServerPort());
+        FileSystem fs = vertx.fileSystem();
+        fs.writeFile("test.test", Buffer.buffer("test"), h -> {
+            logger.debug("file created");
+            startFuture.complete();
+        });
+
+        if (1<0) {
+            initServices(vertx, startFuture);
+            vertx.createHttpServer().requestHandler(req -> req.response().end("Hi")).listen(ConfigurationHolder.config.getServerPort());
+        }
     }
 
     protected void initServices(Vertx vertx, Future<Void> startFuture) throws IOException {

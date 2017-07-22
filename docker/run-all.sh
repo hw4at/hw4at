@@ -7,7 +7,9 @@ cd $(dirname $0)
 
 ./db-run.sh &
 
-../server/pack.sh
+[[ -n "$1" ]] && ../server/pack.sh
+
+rm -f ../server/log4j.log
 
 ./server-run.sh &
 
@@ -16,4 +18,6 @@ cd $(dirname $0)
 ./db-init.sh
 
 ./server-wait.sh
+
+tail -f ../server/log4j.log
 
