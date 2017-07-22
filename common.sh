@@ -1,27 +1,7 @@
 #!/bin/bash
+cd $(dirname $0)
 
-HOME_DIR=/media/sf_Shared
-PROJECT_KEY=surl
-
-DOC_NET=$PROJECT_KEY-net
-DOC_SCALA=$PROJECT_KEY/scala
-DOC_SERVER=$PROJECT_KEY-server
-DOC_MYSQL=$PROJECT_KEY/mysql
-DOC_DB=$PROJECT_KEY-db
-
-
-SERVER_PORT=9988
-SERVER_DEBUG_PORT=9977
-SERVER_JAR_NAME=surl-server-fat.jar
-SERVER_JAR=target/$SERVER_JAR_NAME
-
-
-DB_SCHEMA=$PROJECT_KEY
-DB_PORT=3306
-DB_USER=root
-DB_PWD=123123
-MYSQL_ALLOW_EMPTY_PASSWORD=true
-
+. ./server/config/surl.properties
 
 exe() {
   "$@" |& tee /tmp/exe.log
