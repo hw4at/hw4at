@@ -3,10 +3,11 @@ package surl.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.Json;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import surl.server.services.*;
 
 import java.io.FileInputStream;
@@ -46,7 +47,27 @@ public class ShortURLVerticle extends AbstractVerticle {
             DBServiceHolder.db.testConnection(dbTest);
         });
 
+        router.get("/all/:user").handler(ctx -> {
+            DBServiceHolder.db.allBookmarks(ctx.request().getParam("user"), res -> {
+                ctx.response().putHeader("content-type", "application/json").end(res.encodePrettily());
+            });
+        });
+
+        router.get("/all/:user").handler(ctx -> handleAllBookmarks(ctx, ctx.request().getParam("user")));
+        router.get("/all").handler(ctx -> handleAllBookmarks(ctx, null));
+        router.post("/new").handler(ctx -> handleAllBookmarks(ctx, null));
+
         vertx.createHttpServer().requestHandler(router::accept).listen(ConfigurationHolder.config.getServerPort());
+    }
+
+    protected void handleNewBookmark(RoutingContext routingContext) {
+        DBService.Bookmark bookmark = Json.decodeValue(routingContext.getBodyAsString(), DBService.Bookmark.class);
+    }
+
+    protected void handleAllBookmarks(RoutingContext routingContext, String user) {
+        DBServiceHolder.db.allBookmarks(user, res -> {
+            routingContext.response().putHeader("content-type", "application/json").end(res.encodePrettily());
+        });
     }
 
     protected void initServices(Vertx vertx, Future<Void> startFuture) throws IOException {
