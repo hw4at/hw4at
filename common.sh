@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ~/surl/server/config/surl.properties
+. ~/surl/server/src/main/resources/surl.properties
 
 exe() {
   "$@" |& tee /tmp/exe.log
