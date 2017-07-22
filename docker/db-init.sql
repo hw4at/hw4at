@@ -1,12 +1,12 @@
-CREATE TABLE IF NOT EXISTS test (
-  id int,
-  name VARCHAR(1024),
+CREATE TABLE IF NOT EXISTS urls (
+  user VARCHAR(64),
+  name VARCHAR(64),
+  full_url VARCHAR(255),
+  short_url VARCHAR(32),
   created DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id, name),
-  INDEX test_id_ix (id)
+  PRIMARY KEY (user, name),
+  INDEX urls_short_url_ix (short_url),
+  INDEX urls_user_name_ix (user, name)
 );
-
-INSERT IGNORE INTO test (id, name) VALUES (1, 'a');
-INSERT IGNORE INTO test (id, name) VALUES (2, 'b');
 
