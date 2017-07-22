@@ -8,5 +8,6 @@ mkdir $DIR
 
 cp -f $SERVER_JAR $DIR
 
-unzip $DIR/$SERVER_JAR_NAME 
+cd $DIR
+unzip $SERVER_JAR_NAME
 
