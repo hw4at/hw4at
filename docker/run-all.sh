@@ -12,7 +12,8 @@ cd $(dirname $0)
 ./db-init.sh
 
 rm -f ../server/log4j.log
+touch ../server/log4j.log
 ./server-run.sh
-./server-wait.sh
+#./server-wait.sh
 tail -f ../server/log4j.log
 
