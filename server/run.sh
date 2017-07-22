@@ -1,8 +1,6 @@
 #!/bin/bash
 cd $(dirname $0)
-. ../common.sh
 
-#scala target/scala-2.12/$SERVER_JAR_NAME
+rm -f log4j.log
 
-scala -cp target/scala-2.12/$SERVER_JAR_NAME io.vertx.core.Launcher
-
+java -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4jLogDelegateFactory -jar target/surl-server-fat.jar

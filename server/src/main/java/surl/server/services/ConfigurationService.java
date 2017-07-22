@@ -31,12 +31,12 @@ public class ConfigurationService {
     }
 
     public String getDBPassword() {
-        return config.getProperty("DB_PSWD");
+        return config.getProperty("DB_PWD");
     }
 
-    private int str2int(String key, int def) {
+    private int str2int(String property, int def) {
         try {
-            return Integer.parseInt(config.getProperty("SERVER_PORT"));
+            return Integer.parseInt(config.getProperty(property));
         } catch(Exception e) {
             return def;
         }

@@ -3,13 +3,12 @@ package surl.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.file.FileSystem;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import surl.server.services.*;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -26,25 +25,14 @@ public class ShortURLVerticle extends AbstractVerticle {
             logger.error(t.getMessage(), t);
         });
 
-        FileSystem fs = vertx.fileSystem();
-        fs.writeFile("test.test", Buffer.buffer("test"), h -> {
-            logger.debug("file created");
-            startFuture.complete();
-        });
-
-        if (1<0) {
-            initServices(vertx, startFuture);
-            vertx.createHttpServer().requestHandler(req -> req.response().end("Hi")).listen(ConfigurationHolder.config.getServerPort());
-        }
+        initServices(vertx, startFuture);
+        vertx.createHttpServer().requestHandler(req -> req.response().end("Hi")).listen(ConfigurationHolder.config.getServerPort());
     }
 
     protected void initServices(Vertx vertx, Future<Void> startFuture) throws IOException {
         logger.debug("initServices is called");
-        InputStream in = getClass().getResourceAsStream("surl.properties");
-        if (in == null) {
-            throw new IOException("surl.properties resource is not found");
-        }
         Properties prop = new Properties();
+        InputStream in = new FileInputStream("src/main/resources/surl.properties");
         prop.load(in);
         in.close();
         ConfigurationHolder.config = new ConfigurationService(prop);
