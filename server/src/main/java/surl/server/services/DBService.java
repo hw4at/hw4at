@@ -12,15 +12,12 @@ public class DBService {
     private SQLClient client;
 
     public DBService(SQLClient client) {
-        logger.debug("DBService is called");
         this.client = client;
     }
 
-    public void testConnection(Future<Void> future) {
-        logger.debug("testConnection is called");
+    public void testConnection(Future<?> future) {
         client.getConnection(res -> {
             if (res.succeeded()) {
-                logger.debug("testConnection is passed");
                 future.complete();
             } else {
                 logger.error("Unable to connect the DB", res.cause());
