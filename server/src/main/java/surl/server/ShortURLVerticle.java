@@ -8,7 +8,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import surl.server.services.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,35 +28,27 @@ public class ShortURLVerticle extends AbstractVerticle {
             logger.error(t.getMessage(), t);
         });
 
-        initServices(vertx, startFuture);
+        initServices(vertx);
 
         router.get("/echo/:msg").handler(ctx -> ctx.response().end(ctx.request().getParam("msg")));
-
-        router.get("/health").handler(ctx -> {
-            logger.debug("Health check ...");
-            Future<?> dbTest = Future.future();
-            dbTest.setHandler(res -> {
-                if (res.succeeded()) {
-                    logger.debug("Healthy");
-                    ctx.response().end("Ok");
-                } else {
-                    ctx.response().setStatusCode(500).end("Not healthy, check the logs");
-                }
-            });
-            DBServiceHolder.db.testConnection(dbTest);
-        });
-
-        router.get("/all/:user").handler(ctx -> {
-            DBServiceHolder.db.allBookmarks(ctx.request().getParam("user"), res -> {
-                ctx.response().putHeader("content-type", "application/json").end(res.encodePrettily());
-            });
-        });
-
+        router.get("/health").handler(this::handleHealth);
         router.get("/all/:user").handler(ctx -> handleAllBookmarks(ctx, ctx.request().getParam("user")));
         router.get("/all").handler(ctx -> handleAllBookmarks(ctx, null));
-        router.post("/new").handler(ctx -> handleAllBookmarks(ctx, null));
+//        router.post("/new").handler(ctx -> handleAllBookmarks(ctx, null));
 
-        vertx.createHttpServer().requestHandler(router::accept).listen(ConfigurationHolder.config.getServerPort());
+        vertx.createHttpServer().requestHandler(router::accept).listen(ConfigurationServiceHolder.config.getServerPort());
+
+        Future<?> dbTest = Future.future();
+        dbTest.setHandler(res -> {
+            if (res.succeeded()) {
+                logger.info("Server is up and ready ...");
+                startFuture.complete();
+            } else {
+                logger.error("Server failed to start", res.cause());
+                startFuture.fail("Server failed to start, please check the log for more details");
+            }
+        });
+        DBServiceHolder.db.testConnection(dbTest);
     }
 
     protected void handleNewBookmark(RoutingContext routingContext) {
@@ -70,29 +61,31 @@ public class ShortURLVerticle extends AbstractVerticle {
         });
     }
 
-    protected void initServices(Vertx vertx, Future<Void> startFuture) throws IOException {
-        Properties prop = new Properties();
-        try (InputStream in = new FileInputStream("src/main/resources/surl.properties")) {
-            prop.load(in);
-        }
-        ConfigurationHolder.config = new ConfigurationService(prop);
-        DBServiceHolder.db = new DBService(new SQLClientFactory().createMySQLClient(vertx));
-        DBServiceHolder.db.testConnection(startFuture);
-
+    protected void handleHealth(RoutingContext ctx) {
+        logger.debug("Health check ...");
         Future<?> dbTest = Future.future();
         dbTest.setHandler(res -> {
             if (res.succeeded()) {
-                logger.info("Server is up and ready ...");
-                startFuture.complete();
+                logger.debug("Healthy");
+                ctx.response().end("Healthy");
             } else {
-                logger.error("Server failed to start", res.cause());
-                if (res.cause() !=null) {
-                    startFuture.fail(res.cause());
-                } else {
-                    startFuture.fail("Server failed to start, check more details in the log");
-                }
+                ctx.response().setStatusCode(500).end("Not healthy, please check the logs for more details");
             }
         });
         DBServiceHolder.db.testConnection(dbTest);
+    }
+
+    protected void initServices(Vertx vertx) throws IOException {
+        if (ConfigurationServiceHolder.config == null) {
+            Properties prop = new Properties();
+            try (InputStream in = new FileInputStream("src/main/resources/surl.properties")) {
+                prop.load(in);
+            }
+            ConfigurationServiceHolder.config = new ConfigurationService(prop);
+        }
+
+        if (DBServiceHolder.db == null) {
+            DBServiceHolder.db = new DBServiceImpl(new SQLClientFactory().createMySQLClient(vertx));
+        }
     }
 }

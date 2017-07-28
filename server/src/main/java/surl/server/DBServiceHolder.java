@@ -1,4 +1,4 @@
-package surl.server.services;
+package surl.server;
 
 public class DBServiceHolder {
 

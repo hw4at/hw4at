@@ -1,10 +1,10 @@
-package surl.server.services;
+package surl.server;
 
 import java.util.Properties;
 
 public class ConfigurationService {
 
-    public static Properties config;
+    private Properties config;
 
     public ConfigurationService(Properties config) {
         this.config = config;

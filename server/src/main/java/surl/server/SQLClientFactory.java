@@ -1,4 +1,4 @@
-package surl.server.services;
+package surl.server;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -15,10 +15,10 @@ public class SQLClientFactory {
 
     protected JsonObject getDBJsonObject() throws IOException {
         return new JsonObject()
-                .put("host", ConfigurationHolder.config.getDBHost())
-                .put("port", ConfigurationHolder.config.getDBPort())
-                .put("database", ConfigurationHolder.config.getDBSchema())
-                .put("username", ConfigurationHolder.config.getDBUserName())
-                .put("password", ConfigurationHolder.config.getDBPassword());
+                .put("host", ConfigurationServiceHolder.config.getDBHost())
+                .put("port", ConfigurationServiceHolder.config.getDBPort())
+                .put("database", ConfigurationServiceHolder.config.getDBSchema())
+                .put("username", ConfigurationServiceHolder.config.getDBUserName())
+                .put("password", ConfigurationServiceHolder.config.getDBPassword());
     }
 }

@@ -1,17 +1,13 @@
-package surl.server.services;
+package surl.server;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
-import surl.server.ShortURLException;
 
-public class DBService {
+public class DBServiceImpl implements DBService {
     private static final Logger logger = LoggerFactory.getLogger(DBService.class);
 
     private static final String DEFAULT_USER = "def";
@@ -22,7 +18,7 @@ public class DBService {
         public String user, name, url;
     }
 
-    public DBService(SQLClient client) {
+    public DBServiceImpl(SQLClient client) {
         this.client = client;
     }
 
@@ -37,7 +33,7 @@ public class DBService {
         });
     }
 
-    public void newBookmark(Bookmark bookmark, Handler<String> handler) {
+    public void newBookmark(DBService.Bookmark bookmark, Handler<String> handler) {
     }
 
     public void allBookmarks(String user, Handler<JsonArray> handler) {
