@@ -179,30 +179,34 @@
                         </goals>
                         <configuration>
                             <target>
-                                <exec executable="${java.home}/bin/java" dir="${project.build.directory}" spawn="true" />
+                                <exec executable="../docker/run-all.sh" dir="${project.basedir}" spawn="false" />
                             </target>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>stop-vertx-app</id>
+                        <id>stop-containers</id>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <!--
-                              Kill the started process.
-                              Finding the right process is a bit tricky. Windows command in in the windows profile (below)
-                              -->
                             <target>
-                                <exec executable="bash"
-                                      dir="${project.build.directory}"
-                                      spawn="false">
-                                    <arg value="-c"/>
-                                    <arg value="ps ax | grep -Ei '[\-]DtestPort=${http.port}\s+\-jar\s+${project.artifactId}' | awk 'NR==1{print $1}' | xargs kill -SIGTERM"/>
-                                </exec>
+                                <exec executable="../docker/kill-all.sh" dir="${project.basedir}" spawn="false" />
                             </target>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

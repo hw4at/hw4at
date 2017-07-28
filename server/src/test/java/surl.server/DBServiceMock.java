@@ -22,11 +22,9 @@ public class DBServiceMock implements  DBService {
 
     public DBServiceMock() {
         reset();
-        System.out.println("DBServiceMock is created");
     }
 
     public void reset() {
-        System.out.println("reset is called");
         db.clear();
         testConnection = complete;
         allBookmarks = noBookmarks;
@@ -39,7 +37,6 @@ public class DBServiceMock implements  DBService {
 
     @Override
     public void newBookmark(Bookmark bookmark, Handler<String> handler) {
-
     }
 
     @Override

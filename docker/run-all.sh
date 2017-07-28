@@ -14,6 +14,8 @@ cd $(dirname $0)
 rm -f ../server/log4j.log
 touch ../server/log4j.log
 ./server-run.sh
-#./server-wait.sh
-tail -f ../server/log4j.log
+
+docker ps
+
+[[ -n "$1" ]] && tail -f ../server/log4j.log
 
