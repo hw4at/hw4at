@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static surl.server.Utils.TrioHandler;
 import static org.mockito.Mockito.mock;
 
 public class DBAdapterMock implements DBAdapter {

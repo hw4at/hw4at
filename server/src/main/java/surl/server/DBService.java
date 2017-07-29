@@ -2,6 +2,7 @@ package surl.server;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -16,13 +17,9 @@ public class DBService {
     private static final Pattern USER_PATTERN = Pattern.compile("^[a-zA-Z0-9]+$");
     private static final String DEFAULT_USER = "def";
 
-    private static final String ALL_BOOKMARKS_QUERY = "select name, short_url, full_url from bookmarks where user = '%s'";
+    private static final String ALL_BOOKMARKS_QUERY = "SELECT name, short_url, full_url FROM bookmarks WHERE user = '%s'";
 
     private DBAdapter adapter;
-
-    public static class Bookmark {
-        public String user, name, url;
-    }
 
     public DBService(DBAdapter adapter) {
         this.adapter = adapter;
@@ -39,7 +36,7 @@ public class DBService {
         });
     }
 
-    public void newBookmark(DBService.Bookmark bookmark, BiConsumer<JsonArray, String> handler) {
+    public void newBookmark(JsonObject bookmark, BiConsumer<JsonArray, String> handler) {
     }
 
     public void allBookmarks(String user, BiConsumer<JsonArray, String> handler) {

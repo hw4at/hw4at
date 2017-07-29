@@ -1,12 +1,12 @@
 package surl.server;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
 
 import java.util.List;
+
+import static surl.server.Utils.TrioHandler;
 
 public class DBAdapterImpl implements DBAdapter {
 
