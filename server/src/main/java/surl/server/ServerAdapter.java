@@ -26,4 +26,6 @@ public interface ServerAdapter {
     void respond(RoutingContext ctx, int statusCode, String body);
 
     void respondAsJson(RoutingContext ctx, int statusCode, String body);
+
+    void redirect(RoutingContext ctx, String url);
 }

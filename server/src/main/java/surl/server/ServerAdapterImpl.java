@@ -65,4 +65,9 @@ public class ServerAdapterImpl implements ServerAdapter {
     public void respondAsJson(RoutingContext ctx, int statusCode, String body) {
         ctx.response().putHeader("content-type", "application/json").end(body);
     }
+
+    @Override
+    public void redirect(RoutingContext ctx, String url) {
+        ctx.response().putHeader("location", url).setStatusCode(302).end();
+    }
 }

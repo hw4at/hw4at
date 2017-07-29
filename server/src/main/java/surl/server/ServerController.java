@@ -13,7 +13,7 @@ public class ServerController {
     private static final Logger logger = LoggerFactory.getLogger(ServerController.class);
 
     private static final Pattern VALUE_PATTERN = Pattern.compile("^[a-zA-Z0-9]+$");
-    private static final UrlValidator URL_VALIDATOR = new UrlValidator();
+    private static final UrlValidator URL_VALIDATOR = new UrlValidator(new String[] { "http", "https", "www" });
 
     private static final String USER = "user", NAME = "name", URL = "url", SHORT_URL = "short_url", FULL_URL = "full_url";
 
@@ -49,6 +49,16 @@ public class ServerController {
             return;
         }
         db.getAllBookmarks(user, errHandler, res -> resHandler.accept(res.encodePrettily()));
+    }
+
+    public void redirect(String shortUrl, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
+        if (isNotValidValue(shortUrl)) {
+            logger.info("Invalid redirect request with URL: " + shortUrl);
+            errHandler.accept("Invalid URL " + shortUrl, null);
+            return;
+        }
+
+        db.getFullURL(shortUrl, errHandler, resHandler);
     }
 
     protected boolean isNotValidValue(String val) {

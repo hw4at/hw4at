@@ -14,6 +14,7 @@ public class DBService {
     private static final String NEW_BOOKMARKS_SQL = "INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('%s', '%s', '%s', '%s');";
     private static final String ALL_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks";
     private static final String ALL_USER_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks WHERE user = '%s'";
+    private static final String FULL_URL_SQL = "SELECT full_url FROM bookmarks WHERE short_url = '%s'";
 
     private DBAdapter adapter;
 
@@ -50,6 +51,19 @@ public class DBService {
                 JsonArray array = new JsonArray();
                 res.forEach(r -> array.add(r));
                 resHandler.accept(array);
+            });
+        });
+    }
+
+    public void getFullURL(String shortUrl, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
+        String sql = String.format(FULL_URL_SQL, shortUrl);
+        adapter.connect(errHandler, con -> {
+            adapter.query(con, sql, errHandler, res -> {
+                String fullUrl = null;
+                if (res != null && res.size() > 0 && res.get(0)!=null) {
+                    fullUrl = res.get(0).getString("full_url");
+                }
+                resHandler.accept(fullUrl);
             });
         });
     }

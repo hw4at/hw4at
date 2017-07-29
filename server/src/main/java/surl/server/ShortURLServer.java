@@ -47,6 +47,17 @@ public class ShortURLServer {
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(null, errorHandler(ctx), jsonHandler(ctx)));
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(serverAdapter.getParam(ctx, "user"), errorHandler(ctx), jsonHandler(ctx)));
 
+        serverAdapter.onGet(router, "/" + URL_REDIRECT_PREFIX + "/:shortUrl",
+                ctx -> controller.redirect(serverAdapter.getParam(ctx, "shortUrl"),
+                errorHandler(ctx),
+                fullUrl -> {
+                    if (Utils.isEmpty(fullUrl)) {
+                        serverAdapter.respond(ctx, ERROR_CODE, "No such URL");
+                    } else {
+                        serverAdapter.redirect(ctx, fullUrl);
+                    }
+                }));
+
         serverAdapter.start(vertx, router);
 
         ready(startFuture);
