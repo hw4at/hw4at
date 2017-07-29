@@ -1,6 +1,7 @@
 package surl.server;
 
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -9,16 +10,24 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.io.IOException;
 
-public class Server {
-    private static final Logger logger = LoggerFactory.getLogger(Server.class);
+public class ShortURLServer {
+    private static final Logger logger = LoggerFactory.getLogger(ShortURLServer.class);
 
     public static final String OK_BODY = "Ok";
     public static final int OK_CODE = 200, ERROR_CODE = 500;
 
-    private final ServerAdapter serverAdapter;
+    private ServerAdapter serverAdapter;
 
-    public Server(Router router, ServerAdapter serverAdapter) throws IOException {
+    public void run(Vertx vertx, Future<Void> startFuture, ServerAdapter serverAdapter) throws IOException {
         this.serverAdapter = serverAdapter;
+
+        logger.debug("Server is starting ...");
+        Router router = serverAdapter.router(vertx);
+
+        serverAdapter.onError(router, t -> {
+            t.printStackTrace();
+            logger.error(t.getMessage(), t);
+        });
 
         serverAdapter.onGet(router, "/echo/:msg", ctx -> serverAdapter.respond(ctx, OK_CODE, serverAdapter.param(ctx, "msg")));
         serverAdapter.onGet(router, "/health", this::handleHealth);
@@ -26,9 +35,13 @@ public class Server {
         serverAdapter.onGet(router, "/new", this::handleNewBookmark);
         serverAdapter.onGet(router, "/all/:user", ctx -> handleAllBookmarks(ctx, serverAdapter.param(ctx, "user")));
         serverAdapter.onGet(router, "/all", ctx -> handleAllBookmarks(ctx, null));
+
+        serverAdapter.start(vertx, router);
+
+        ready(startFuture);
     }
 
-    public void ready(Future future) {
+    private void ready(Future future) {
         Future<?> dbTest = Future.future();
         dbTest.setHandler(res -> {
             if (res.succeeded()) {

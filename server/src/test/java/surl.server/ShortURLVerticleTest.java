@@ -10,10 +10,12 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+/**
+ * Component Test
+ */
 @RunWith(VertxUnitRunner.class)
 public class ShortURLVerticleTest {
 
-    private static final int OK = 200, ERROR = 500;
     private static DBAdapterMock dbMock;
 
     private static Vertx vertx;
@@ -37,18 +39,18 @@ public class ShortURLVerticleTest {
 
     @Test
     public void testEcho(TestContext context) {
-        testGET(context, "/echo/hello", "hello", Server.OK_CODE, "test echo");
+        testGET(context, "/echo/hello", "hello", ShortURLServer.OK_CODE, "test echo");
     }
 
     @Test
     public void testHealthy(TestContext context) {
-        testGET(context, "/health", null, Server.OK_CODE, "test health");
+        testGET(context, "/health", null, ShortURLServer.OK_CODE, "test health");
     }
 
     @Test
     public void testNotHealthy(TestContext context) {
         dbMock.connectionHandler = dbMock.handler(true, "db is down");
-        testGET(context, "/health", null, Server.ERROR_CODE, "test not health");
+        testGET(context, "/health", null, ShortURLServer.ERROR_CODE, "test not health");
     }
 
     private void testGET(TestContext context, String url, String resBody, Integer statusCode, String desc) {

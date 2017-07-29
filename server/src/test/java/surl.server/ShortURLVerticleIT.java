@@ -8,9 +8,8 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 
-
-/*
-    Integration test
+/**
+ * Integration Test
  */
 public class ShortURLVerticleIT {
 
