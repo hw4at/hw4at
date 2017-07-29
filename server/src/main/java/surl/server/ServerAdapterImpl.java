@@ -43,6 +43,16 @@ public class ServerAdapterImpl implements ServerAdapter {
     }
 
     @Override
+    public void onPut(Router router, String url, Handler<RoutingContext> handler) {
+        router.put(url).handler(handler);
+    }
+
+    @Override
+    public void onDelete(Router router, String url, Handler<RoutingContext> handler) {
+        router.delete(url).handler(handler);
+    }
+
+    @Override
     public String getParam(RoutingContext ctx, String name) {
         return ctx.request().getParam(name);
     }

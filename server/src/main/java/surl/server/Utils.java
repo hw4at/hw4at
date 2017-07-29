@@ -21,6 +21,7 @@ public class Utils {
         return str == null || str.isEmpty();
     }
 
+    // TODO replace by better performance implementation
     protected static String nextString(int num) {
         return num < 0 ? "" : nextString((num / 26) - 1) + (char)(97 + num % 26);
     }

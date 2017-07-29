@@ -19,6 +19,10 @@ public interface ServerAdapter {
 
     void onPost(Router router, String url, Handler<RoutingContext> handler);
 
+    void onPut(Router router, String url, Handler<RoutingContext> handler);
+
+    void onDelete(Router router, String url, Handler<RoutingContext> handler);
+
     String getParam(RoutingContext ctx, String name);
 
     JsonObject getBodyAsJson(RoutingContext ctx);

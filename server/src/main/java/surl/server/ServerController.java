@@ -32,14 +32,10 @@ public class ServerController {
         String name = bookmark.getString(NAME);
         String fullUrl = bookmark.getString(URL);
 
-        if (isNotValidValue(user) || isNotValidValue(name) || isNotValidURL(fullUrl)) {
-            logger.info("Invalid create bookmark request. user = " + user + ", name = " + name + ", url = " + fullUrl);
-            errHandler.accept("Invalid values. E.G. too long values, invalid URL ...", null);
-            return;
+        if(isValidJson("create", bookmark, true, errHandler)) {
+            String shortUrl = instancePrefix + Utils.nextString(lastURL++);
+            db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(baseUrl + shortUrl));
         }
-
-        String shortUrl = instancePrefix + Utils.nextString(lastURL++);
-        db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(baseUrl + shortUrl));
     }
 
     public void getAllBookmarks(String user, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
@@ -51,14 +47,48 @@ public class ServerController {
         db.getAllBookmarks(user, errHandler, res -> resHandler.accept(res.encodePrettily()));
     }
 
+    public void updateBookmark(JsonObject bookmark, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
+        String user = bookmark.getString(USER);
+        String name = bookmark.getString(NAME);
+        String fullUrl = bookmark.getString(URL);
+
+        if(isValidJson("update", bookmark, true, errHandler)) {
+            db.updateBookmark(user, name, fullUrl, errHandler, resHandler);
+        }
+    }
+
+    public void deleteBookmark(JsonObject bookmark, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
+        String user = bookmark.getString(USER);
+        String name = bookmark.getString(NAME);
+
+        if(isValidJson("delete", bookmark, false, errHandler)) {
+            db.deleteBookmark(user, name, errHandler, resHandler);
+        }
+    }
+
     public void redirect(String shortUrl, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
-        if (isNotValidValue(shortUrl)) {
+        // TODO The validation need improvement ...
+        if (Utils.isEmpty(shortUrl)) {
             logger.info("Invalid redirect request with URL: " + shortUrl);
             errHandler.accept("Invalid URL " + shortUrl, null);
             return;
         }
 
         db.getFullURL(shortUrl, errHandler, resHandler);
+    }
+
+    protected boolean isValidJson(String title, JsonObject bookmark, boolean checkUrl,  BiConsumer<String, Throwable> errHandler) {
+        String user = bookmark.getString(USER);
+        String name = bookmark.getString(NAME);
+        String fullUrl = bookmark.getString(URL);
+
+        if (isNotValidValue(user) || isNotValidValue(name) || (checkUrl && isNotValidURL(fullUrl))) {
+            logger.info("Invalid " + title + " bookmark request. user = " + user + ", name = " + name + ", url = " + fullUrl);
+            errHandler.accept("Invalid values. For example: values too long, invalid URL ...", null);
+            return false;
+        }
+
+        return true;
     }
 
     protected boolean isNotValidValue(String val) {

@@ -1,6 +1,7 @@
 package surl.server;
 
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -43,20 +44,31 @@ public class ShortURLServer {
         serverAdapter.onGet(router, "/echo/:msg", ctx -> serverAdapter.respond(ctx, OK_CODE, serverAdapter.getParam(ctx, "msg")));
         serverAdapter.onGet(router, "/health", this::handleHealth);
 
-        serverAdapter.onPost(router, "/create", this::createBookmark);
+        serverAdapter.onPost(router, "/create", ctx -> {
+            JsonObject json = getBodyAsJson(ctx);
+            if (json !=null) {
+                controller.createBookmark(json, errorHandler(ctx), stringHandler(ctx));
+            }
+        });
+
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(null, errorHandler(ctx), jsonHandler(ctx)));
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(serverAdapter.getParam(ctx, "user"), errorHandler(ctx), jsonHandler(ctx)));
 
-        serverAdapter.onGet(router, "/" + URL_REDIRECT_PREFIX + "/:shortUrl",
-                ctx -> controller.redirect(serverAdapter.getParam(ctx, "shortUrl"),
-                errorHandler(ctx),
-                fullUrl -> {
-                    if (Utils.isEmpty(fullUrl)) {
-                        serverAdapter.respond(ctx, ERROR_CODE, "No such URL");
-                    } else {
-                        serverAdapter.redirect(ctx, fullUrl);
-                    }
-                }));
+        serverAdapter.onGet(router, "/" + URL_REDIRECT_PREFIX + "/:shortUrl", this::redirect);
+
+        serverAdapter.onPut(router, "/update", ctx -> {
+            JsonObject json = getBodyAsJson(ctx);
+            if (json !=null) {
+                controller.updateBookmark(json, errorHandler(ctx), intHandler(ctx));
+            }
+        });
+
+        serverAdapter.onDelete(router, "/delete", ctx -> {
+            JsonObject json = getBodyAsJson(ctx);
+            if (json !=null) {
+                controller.deleteBookmark(json, errorHandler(ctx), intHandler(ctx));
+            }
+        });
 
         serverAdapter.start(vertx, router);
 
@@ -77,14 +89,15 @@ public class ShortURLServer {
         db.testConnection(dbTest);
     }
 
-    protected void createBookmark(RoutingContext ctx) {
-        try {
-            JsonObject json = serverAdapter.getBodyAsJson(ctx);
-            controller.createBookmark(json, errorHandler(ctx), stringHandler(ctx));
-        } catch(Exception e) {
-            logger.debug("Invalid create bookmark request ", e);
-            serverAdapter.respond(ctx, ERROR_CODE, "Invalid input, make sure the json request is valid");
-        }
+    protected void redirect(RoutingContext ctx) {
+        controller.redirect(serverAdapter.getParam(ctx, "shortUrl"), errorHandler(ctx),
+            fullUrl -> {
+                if (Utils.isEmpty(fullUrl)) {
+                    serverAdapter.respond(ctx, ERROR_CODE, "No such URL");
+                } else {
+                    serverAdapter.redirect(ctx, fullUrl);
+                }
+            });
     }
 
     protected void handleHealth(RoutingContext ctx) {
@@ -102,8 +115,29 @@ public class ShortURLServer {
         db.testConnection(dbTest);
     }
 
+    protected JsonObject getBodyAsJson(RoutingContext ctx) {
+        try {
+            return serverAdapter.getBodyAsJson(ctx);
+        } catch(Exception e) {
+            logger.debug("Invalid json request", e);
+            serverAdapter.respond(ctx, ERROR_CODE, "Invalid input, make sure the json request is valid");
+        }
+
+        return null;
+    }
+
     private Consumer<String> stringHandler(RoutingContext ctx) {
         return res -> serverAdapter.respond(ctx, OK_CODE, res);
+    }
+
+    private Consumer<Integer> intHandler(RoutingContext ctx) {
+        return count -> {
+            if (count > 0) {
+                serverAdapter.respond(ctx, OK_CODE, OK_BODY);
+            } else {
+                serverAdapter.respond(ctx, ERROR_CODE, "User and name are not found");
+            }
+        };
     }
 
     private Consumer<String> jsonHandler(RoutingContext ctx) {
@@ -112,9 +146,5 @@ public class ShortURLServer {
 
     private BiConsumer<String, Throwable> errorHandler(RoutingContext ctx) {
         return (msg, e) -> serverAdapter.respond(ctx, ERROR_CODE, msg);
-    }
-
-    private Consumer<Integer> okHandler(RoutingContext ctx) {
-        return count -> serverAdapter.respond(ctx, OK_CODE, OK_BODY);
     }
 }

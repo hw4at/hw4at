@@ -11,10 +11,12 @@ import java.util.function.Consumer;
 public class DBService {
     private static final Logger logger = LoggerFactory.getLogger(DBService.class);
 
-    private static final String NEW_BOOKMARKS_SQL = "INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('%s', '%s', '%s', '%s');";
-    private static final String ALL_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks";
+    private static final String NEW_BOOKMARK_SQL = "INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('%s', '%s', '%s', '%s')";
+    private static final String ALL_BOOKMARKS_SQL = "SELECT user, name, short_url, full_url FROM bookmarks";
     private static final String ALL_USER_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks WHERE user = '%s'";
     private static final String FULL_URL_SQL = "SELECT full_url FROM bookmarks WHERE short_url = '%s'";
+    private static final String UPDATE_BOOKMARK_SQL = "UPDATE bookmarks SET full_url = '%s' WHERE user = '%s' AND name = '%s'";
+    private static final String DELETE_BOOKMARK_SQL = "DELETE FROM bookmarks WHERE user = '%s' AND name = '%s'";
 
     private DBAdapter adapter;
 
@@ -27,7 +29,7 @@ public class DBService {
     }
 
     public void createBookmark(String user, String name, String shortUrl, String fullUrl, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
-        String sql = String.format(NEW_BOOKMARKS_SQL, user, name, shortUrl, fullUrl);
+        String sql = String.format(NEW_BOOKMARK_SQL, user, name, shortUrl, fullUrl);
         adapter.connect(errHandler, con -> adapter.update(con, sql, (msg, e) -> {
             if ((e != null) && e.toString().contains("Error 1062 - #23000")) {
                 errHandler.accept("Invalid input. Make sure the name (and user) is unique", null);
@@ -68,4 +70,13 @@ public class DBService {
         });
     }
 
+    public void updateBookmark(String user, String name, String newUrl, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
+        String sql = String.format(UPDATE_BOOKMARK_SQL, newUrl, user, name);
+        adapter.connect(errHandler, con -> adapter.update(con, sql, errHandler, resHandler));
+    }
+
+    public void deleteBookmark(String user, String name, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
+        String sql = String.format(DELETE_BOOKMARK_SQL, user, name);
+        adapter.connect(errHandler, con -> adapter.update(con, sql, errHandler, resHandler));
+    }
 }

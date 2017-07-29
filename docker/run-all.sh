@@ -1,9 +1,9 @@
 #!/bin/bash
 cd $(dirname $0)
 
-[[ -n "$1" ]] && ../server/pack.sh
-
 ./kill-all.sh
+
+[[ -n "$1" ]] && ../server/pack.sh
 
 ./create-network.sh
 
