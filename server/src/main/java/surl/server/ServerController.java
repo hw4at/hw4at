@@ -5,7 +5,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
 
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -34,8 +33,8 @@ public class ServerController {
         String fullUrl = bookmark.getString(URL);
 
         if (isNotValidValue(user) || isNotValidValue(name) || isNotValidURL(fullUrl)) {
-            logger.info("Invalid create bookmark request. user = %s, name = %s, url = %s", user, name, fullUrl);
-            errHandler.accept("Invalid values", null);
+            logger.info("Invalid create bookmark request. user = " + user + ", name = " + name + ", url = " + fullUrl);
+            errHandler.accept("Invalid values. E.G. too long values, invalid URL ...", null);
             return;
         }
 

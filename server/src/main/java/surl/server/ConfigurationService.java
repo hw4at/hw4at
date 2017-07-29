@@ -29,7 +29,7 @@ public class ConfigurationService {
     }
 
     public String getServerHost() {
-        return prop.getProperty("DB_SCHEMA", "http://localhost");
+        return prop.getProperty("SERVER_HOST", "http://localhost");
     }
 
     public int getServerPort() {

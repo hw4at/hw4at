@@ -2,16 +2,11 @@ package surl.server;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static surl.server.Utils.ErrCode;
 
 public class DBService {
     private static final Logger logger = LoggerFactory.getLogger(DBService.class);
@@ -32,7 +27,13 @@ public class DBService {
 
     public void createBookmark(String user, String name, String shortUrl, String fullUrl, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
         String sql = String.format(NEW_BOOKMARKS_SQL, user, name, shortUrl, fullUrl);
-        adapter.connect(errHandler, con -> adapter.update(con, sql, errHandler, resHandler));
+        adapter.connect(errHandler, con -> adapter.update(con, sql, (msg, e) -> {
+            if ((e != null) && e.toString().contains("Error 1062 - #23000")) {
+                errHandler.accept("Invalid input. Make sure the name (and user) is unique", null);
+                return;
+            }
+            errHandler.accept(msg, e);
+        }, resHandler));
     }
 
     public void getAllBookmarks(String user, BiConsumer<String, Throwable> errHandler, Consumer<JsonArray> resHandler) {
