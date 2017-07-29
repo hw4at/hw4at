@@ -28,6 +28,10 @@ public class ConfigurationService {
         }
     }
 
+    public String getServerHost() {
+        return prop.getProperty("DB_SCHEMA", "http://localhost");
+    }
+
     public int getServerPort() {
         return str2int("SERVER_PORT", 9988);
     }

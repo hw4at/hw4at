@@ -20,4 +20,8 @@ public class Utils {
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }
+
+    protected static String nextString(int num) {
+        return num < 0 ? "" : nextString((num / 26) - 1) + (char)(97 + num % 26);
+    }
 }

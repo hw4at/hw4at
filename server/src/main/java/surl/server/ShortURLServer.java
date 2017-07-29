@@ -18,11 +18,11 @@ public class ShortURLServer {
     public static final String OK_BODY = "Ok";
     public static final int OK_CODE = 200, ERROR_CODE = 500;
 
+    public static final String URL_REDIRECT_PREFIX = "lk";
+
     private ServerAdapter serverAdapter;
     private ServerController controller;
     private DBService db;
-
-
 
     public ShortURLServer(ServerAdapter serverAdapter, ServerController controller, DBService db) {
         this.serverAdapter = serverAdapter;

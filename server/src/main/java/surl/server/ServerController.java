@@ -5,6 +5,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -19,8 +20,12 @@ public class ServerController {
 
     private DBService db;
 
+    private int lastURL = 1;
+    private String baseUrl, instancePrefix = "g.";
+
     public ServerController(DBService db) {
         this.db = db;
+        baseUrl = ConfigurationService.config.getServerHost() + ":" + ConfigurationService.config.getServerPort() + "/" + ShortURLServer.URL_REDIRECT_PREFIX + "/";
     }
 
     public void createBookmark(JsonObject bookmark, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
@@ -34,8 +39,8 @@ public class ServerController {
             return;
         }
 
-        String shortUrl = "aa" + fullUrl.hashCode();
-        db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(shortUrl));
+        String shortUrl = instancePrefix + Utils.nextString(lastURL++);
+        db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(baseUrl + shortUrl));
     }
 
     public void getAllBookmarks(String user, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
