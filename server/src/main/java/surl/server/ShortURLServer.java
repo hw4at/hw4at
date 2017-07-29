@@ -43,7 +43,7 @@ public class ShortURLServer {
         serverAdapter.onGet(router, "/echo/:msg", ctx -> serverAdapter.respond(ctx, OK_CODE, serverAdapter.getParam(ctx, "msg")));
         serverAdapter.onGet(router, "/health", this::handleHealth);
 
-        serverAdapter.onGet(router, "/create", this::createBookmark);
+        serverAdapter.onPost(router, "/create", this::createBookmark);
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(null, errorHandler(ctx), jsonHandler(ctx)));
         serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(serverAdapter.getParam(ctx, "user"), errorHandler(ctx), jsonHandler(ctx)));
 
@@ -71,7 +71,8 @@ public class ShortURLServer {
             JsonObject json = serverAdapter.getBodyAsJson(ctx);
             controller.createBookmark(json, errorHandler(ctx), stringHandler(ctx));
         } catch(Exception e) {
-            serverAdapter.respond(ctx, ERROR_CODE, "Invalid input");
+            logger.debug("Invalid create bookmark request ", e);
+            serverAdapter.respond(ctx, ERROR_CODE, "Invalid input, make sure the json request is valid");
         }
     }
 

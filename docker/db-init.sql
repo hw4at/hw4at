@@ -10,6 +10,3 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   INDEX user_name_ix (user, name)
 );
 
---INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('def', 'ynet', 'qw.123', 'http://www.ynet.co.il');
---INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('def', 'walla', 'qw.456', 'http://www.walla.co.il');
-

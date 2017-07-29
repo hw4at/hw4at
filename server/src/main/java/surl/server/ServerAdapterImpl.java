@@ -8,13 +8,18 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
+
+import static io.vertx.ext.web.Router.router;
 
 public class ServerAdapterImpl implements ServerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ServerAdapterImpl.class);
 
     @Override
     public Router createRouter(Vertx vertx) {
-        return Router.router(vertx);
+        Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
+        return router;
     }
 
     @Override
@@ -30,6 +35,11 @@ public class ServerAdapterImpl implements ServerAdapter {
     @Override
     public void onGet(Router router, String url, Handler<RoutingContext> handler) {
         router.get(url).handler(handler);
+    }
+
+    @Override
+    public void onPost(Router router, String url, Handler<RoutingContext> handler) {
+        router.post(url).handler(handler);
     }
 
     @Override

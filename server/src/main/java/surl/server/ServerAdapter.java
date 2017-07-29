@@ -17,6 +17,8 @@ public interface ServerAdapter {
 
     void onGet(Router router, String url, Handler<RoutingContext> handler);
 
+    void onPost(Router router, String url, Handler<RoutingContext> handler);
+
     String getParam(RoutingContext ctx, String name);
 
     JsonObject getBodyAsJson(RoutingContext ctx);

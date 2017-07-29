@@ -34,8 +34,7 @@ public class ServerController {
             return;
         }
 
-        String shortUrl = null;
-
+        String shortUrl = "aa" + fullUrl.hashCode();
         db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(shortUrl));
     }
 
