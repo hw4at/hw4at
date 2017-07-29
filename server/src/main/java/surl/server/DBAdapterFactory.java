@@ -3,14 +3,13 @@ package surl.server;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.asyncsql.MySQLClient;
-import io.vertx.ext.sql.SQLClient;
 
 import java.io.IOException;
 
-public class SQLClientFactory {
+public class DBAdapterFactory {
 
-    public SQLClient createMySQLClient(Vertx vertx) throws IOException {
-        return MySQLClient.createNonShared(vertx, getDBJsonObject());
+    public DBAdapter createDBAdapter(Vertx vertx) throws IOException {
+        return new DBAdapterImpl(MySQLClient.createNonShared(vertx, getDBJsonObject()));
     }
 
     protected JsonObject getDBJsonObject() throws IOException {

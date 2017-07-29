@@ -32,6 +32,7 @@ public class ShortURLVerticle extends AbstractVerticle {
 
         router.get("/echo/:msg").handler(ctx -> ctx.response().end(ctx.request().getParam("msg")));
         router.get("/health").handler(this::handleHealth);
+
         router.get("/all/:user").handler(ctx -> handleAllBookmarks(ctx, ctx.request().getParam("user")));
         router.get("/all").handler(ctx -> handleAllBookmarks(ctx, null));
 //        router.post("/new").handler(ctx -> handleAllBookmarks(ctx, null));
@@ -56,8 +57,12 @@ public class ShortURLVerticle extends AbstractVerticle {
     }
 
     protected void handleAllBookmarks(RoutingContext routingContext, String user) {
-        DBServiceHolder.db.allBookmarks(user, res -> {
-            routingContext.response().putHeader("content-type", "application/json").end(res.encodePrettily());
+        DBServiceHolder.db.allBookmarks(user, (res, err) -> {
+            if (err != null) {
+                routingContext.response().setStatusCode(500).end(err);
+            } else {
+                routingContext.response().putHeader("content-type", "application/json").end(res.encodePrettily());
+            }
         });
     }
 
@@ -69,6 +74,7 @@ public class ShortURLVerticle extends AbstractVerticle {
                 logger.debug("Healthy");
                 ctx.response().end("Healthy");
             } else {
+                logger.debug("Injured badly");
                 ctx.response().setStatusCode(500).end("Not healthy, please check the logs for more details");
             }
         });
@@ -85,7 +91,7 @@ public class ShortURLVerticle extends AbstractVerticle {
         }
 
         if (DBServiceHolder.db == null) {
-            DBServiceHolder.db = new DBServiceImpl(new SQLClientFactory().createMySQLClient(vertx));
+            DBServiceHolder.db = new DBService(new DBAdapterFactory().createDBAdapter(vertx));
         }
     }
 }

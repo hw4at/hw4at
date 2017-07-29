@@ -14,14 +14,15 @@ import java.io.IOException;
 public class ShortURLVerticleTest {
 
     private static final int OK = 200, ERROR = 500;
-    private static DBServiceMock dbMock;
+    private static DBAdapterMock dbMock;
 
     private static Vertx vertx;
     private static HttpClient client;
 
     @BeforeClass
     public static void before() throws IOException {
-        DBServiceHolder.db = dbMock = new DBServiceMock();
+        dbMock = new DBAdapterMock();
+        DBServiceHolder.db = new DBService(dbMock);
         vertx = Vertx.vertx();
         ShortURLVerticle shortURLVerticle = new ShortURLVerticle();
         shortURLVerticle.initServices(vertx);
@@ -42,12 +43,12 @@ public class ShortURLVerticleTest {
 
     @Test
     public void testHealthy(TestContext context) {
-        testGET(context, "/health", "Healthy", OK, "test health");
+        testGET(context, "/health", null, OK, "test health");
     }
 
     @Test
     public void testNotHealthy(TestContext context) {
-        dbMock.testConnection = f -> f.fail("db is down");
+        dbMock.connectionHandler = dbMock.handler(true, "db is down");
         testGET(context, "/health", null, ERROR, "test not health");
     }
 
