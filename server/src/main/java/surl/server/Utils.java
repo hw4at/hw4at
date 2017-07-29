@@ -9,21 +9,16 @@ public class Utils {
     private Utils() {
     }
 
-    interface TrioConsumer<T1, T2, T3> {
-        void accept(T1 p1, T2 p2, T3 p3);
-    }
-
-    interface TrioHandler<T> extends TrioConsumer<Boolean, Throwable, T> {
+    public interface Done {
+        void handle();
     }
 
     public enum ErrCode {
         E133, E134, E135, E291;
 
         public String oops() {
-            return OOPS_ERROR + name();
+            return "Oops error. Please contact support@surl with id " + name();
         }
-
-        private static final String OOPS_ERROR = "Oops error. Please contact support@surl.com with id ";
     }
 
     public static boolean isEmpty(String str) {

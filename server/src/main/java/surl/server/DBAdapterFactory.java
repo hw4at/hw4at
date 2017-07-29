@@ -14,10 +14,10 @@ public class DBAdapterFactory {
 
     protected JsonObject getDBJsonObject() throws IOException {
         return new JsonObject()
-                .put("host", ConfigurationServiceHolder.config.getDBHost())
-                .put("port", ConfigurationServiceHolder.config.getDBPort())
-                .put("database", ConfigurationServiceHolder.config.getDBSchema())
-                .put("username", ConfigurationServiceHolder.config.getDBUserName())
-                .put("password", ConfigurationServiceHolder.config.getDBPassword());
+                .put("host", ConfigurationService.config.getDBHost())
+                .put("port", ConfigurationService.config.getDBPort())
+                .put("database", ConfigurationService.config.getDBSchema())
+                .put("username", ConfigurationService.config.getDBUserName())
+                .put("password", ConfigurationService.config.getDBPassword());
     }
 }

@@ -4,11 +4,12 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.sql.SQLConnection;
 
 import java.util.List;
-import static surl.server.Utils.TrioHandler;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public interface DBAdapter {
 
-    void connect(TrioHandler<SQLConnection> handler);
+    void connect(BiConsumer<String, Throwable> errHandler, Consumer<SQLConnection> conHandler);
 
-    void query(SQLConnection con, String query, TrioHandler<List<JsonObject>> handler);
+    void query(SQLConnection con, String query, BiConsumer<String, Throwable> errHandler, Consumer<List<JsonObject>> resHandler);
 }

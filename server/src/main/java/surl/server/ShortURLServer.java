@@ -9,6 +9,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 import java.io.IOException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ShortURLServer {
     private static final Logger logger = LoggerFactory.getLogger(ShortURLServer.class);
@@ -17,24 +19,33 @@ public class ShortURLServer {
     public static final int OK_CODE = 200, ERROR_CODE = 500;
 
     private ServerAdapter serverAdapter;
+    private ServerController controller;
+    private DBService db;
 
-    public void run(Vertx vertx, Future<Void> startFuture, ServerAdapter serverAdapter) throws IOException {
+
+
+    public ShortURLServer(ServerAdapter serverAdapter, ServerController controller, DBService db) {
         this.serverAdapter = serverAdapter;
+        this.controller = controller;
+        this.db = db;
+    }
 
+    public void start(Vertx vertx, Future<Void> startFuture) throws IOException {
         logger.debug("Server is starting ...");
-        Router router = serverAdapter.router(vertx);
+
+        Router router = serverAdapter.createRouter(vertx);
 
         serverAdapter.onError(router, t -> {
             t.printStackTrace();
             logger.error(t.getMessage(), t);
         });
 
-        serverAdapter.onGet(router, "/echo/:msg", ctx -> serverAdapter.respond(ctx, OK_CODE, serverAdapter.param(ctx, "msg")));
+        serverAdapter.onGet(router, "/echo/:msg", ctx -> serverAdapter.respond(ctx, OK_CODE, serverAdapter.getParam(ctx, "msg")));
         serverAdapter.onGet(router, "/health", this::handleHealth);
 
-        serverAdapter.onGet(router, "/new", this::handleNewBookmark);
-        serverAdapter.onGet(router, "/all/:user", ctx -> handleAllBookmarks(ctx, serverAdapter.param(ctx, "user")));
-        serverAdapter.onGet(router, "/all", ctx -> handleAllBookmarks(ctx, null));
+        serverAdapter.onGet(router, "/create", this::createBookmark);
+        serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(null, errorHandler(ctx), jsonHandler(ctx)));
+        serverAdapter.onGet(router, "/all", ctx -> controller.getAllBookmarks(serverAdapter.getParam(ctx, "user"), errorHandler(ctx), jsonHandler(ctx)));
 
         serverAdapter.start(vertx, router);
 
@@ -52,28 +63,16 @@ public class ShortURLServer {
                 future.fail("Server failed to start, please check the log for more details");
             }
         });
-        DBServiceHolder.db.testConnection(dbTest);
+        db.testConnection(dbTest);
     }
 
-    protected void handleNewBookmark(RoutingContext ctx) {
+    protected void createBookmark(RoutingContext ctx) {
         try {
-            JsonObject json = serverAdapter.body(ctx);
-            DBServiceHolder.db.newBookmark(json, (res, err) -> {
-                serverAdapter.respond(ctx, err == null ? OK_CODE : ERROR_CODE, err == null ? OK_BODY : err);
-            });
+            JsonObject json = serverAdapter.getBodyAsJson(ctx);
+            controller.createBookmark(json, errorHandler(ctx), okHandler(ctx));
         } catch(Exception e) {
             serverAdapter.respond(ctx, ERROR_CODE, "Invalid input");
         }
-    }
-
-    protected void handleAllBookmarks(RoutingContext ctx, String user) {
-        DBServiceHolder.db.allBookmarks(user, (res, err) -> {
-            if (err != null) {
-                serverAdapter.respond(ctx, ERROR_CODE, err);
-            } else {
-                serverAdapter.respond(ctx, OK_CODE, res);
-            }
-        });
     }
 
     protected void handleHealth(RoutingContext ctx) {
@@ -88,6 +87,18 @@ public class ShortURLServer {
                 serverAdapter.respond(ctx, ERROR_CODE, "Not healthy, please check the logs for more details");
             }
         });
-        DBServiceHolder.db.testConnection(dbTest);
+        db.testConnection(dbTest);
+    }
+
+    private Consumer<String> jsonHandler(RoutingContext ctx) {
+        return res -> serverAdapter.respondAsJson(ctx, OK_CODE, res);
+    }
+
+    private BiConsumer<String, Throwable> errorHandler(RoutingContext ctx) {
+        return (msg, e) -> serverAdapter.respond(ctx, ERROR_CODE, msg);
+    }
+
+    private Utils.Done okHandler(RoutingContext ctx) {
+        return () -> serverAdapter.respond(ctx, OK_CODE, OK_BODY);
     }
 }

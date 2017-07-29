@@ -9,7 +9,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public interface ServerAdapter {
 
-    Router router(Vertx vertx);
+    Router createRouter(Vertx vertx);
 
     void start(Vertx vertx, Router router);
 
@@ -17,13 +17,11 @@ public interface ServerAdapter {
 
     void onGet(Router router, String url, Handler<RoutingContext> handler);
 
-    String param(RoutingContext ctx, String name);
+    String getParam(RoutingContext ctx, String name);
 
-    JsonObject body(RoutingContext ctx);
+    JsonObject getBodyAsJson(RoutingContext ctx);
 
     void respond(RoutingContext ctx, int statusCode, String body);
 
-    void respond(RoutingContext ctx, int statusCode, JsonObject body);
-
-    void respond(RoutingContext ctx, int statusCode, JsonArray body);
+    void respondAsJson(RoutingContext ctx, int statusCode, String body);
 }

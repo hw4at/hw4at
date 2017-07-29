@@ -13,13 +13,13 @@ public class ServerAdapterImpl implements ServerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(ServerAdapterImpl.class);
 
     @Override
-    public Router router(Vertx vertx) {
+    public Router createRouter(Vertx vertx) {
         return Router.router(vertx);
     }
 
     @Override
     public void start(Vertx vertx, Router router) {
-        vertx.createHttpServer().requestHandler(router::accept).listen(ConfigurationServiceHolder.config.getServerPort());
+        vertx.createHttpServer().requestHandler(router::accept).listen(ConfigurationService.config.getServerPort());
     }
 
     @Override
@@ -33,12 +33,12 @@ public class ServerAdapterImpl implements ServerAdapter {
     }
 
     @Override
-    public String param(RoutingContext ctx, String name) {
+    public String getParam(RoutingContext ctx, String name) {
         return ctx.request().getParam(name);
     }
 
     @Override
-    public JsonObject body(RoutingContext ctx) {
+    public JsonObject getBodyAsJson(RoutingContext ctx) {
         return ctx.getBodyAsJson();
     }
 
@@ -52,12 +52,7 @@ public class ServerAdapterImpl implements ServerAdapter {
     }
 
     @Override
-    public void respond(RoutingContext ctx, int statusCode, JsonObject body) {
-        ctx.response().putHeader("content-type", "application/json").end(body.encodePrettily());
-    }
-
-    @Override
-    public void respond(RoutingContext ctx, int statusCode, JsonArray body) {
-        ctx.response().putHeader("content-type", "application/json").end(body.encodePrettily());
+    public void respondAsJson(RoutingContext ctx, int statusCode, String body) {
+        ctx.response().putHeader("content-type", "application/json").end(body);
     }
 }
