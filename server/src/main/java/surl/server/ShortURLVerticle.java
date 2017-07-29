@@ -14,7 +14,9 @@ public class ShortURLVerticle extends AbstractVerticle {
         logger.debug("Server is starting ...");
 
         ConfigurationServiceHolder.init();
-        DBServiceHolder.init(new DBAdapterFactory().createDBAdapter(vertx));
+        if (DBServiceHolder.db == null) {
+            DBServiceHolder.db = new DBService(new DBAdapterFactory().createDBAdapter(vertx));
+        }
 
         Router router = Router.router(vertx);
 

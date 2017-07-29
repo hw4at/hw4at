@@ -37,7 +37,7 @@ public class ShortURLVerticleTest {
 
     @Test
     public void testEcho(TestContext context) {
-//        testGET(context, "/echo/hello", "hello", Server.OK_CODE, "test echo");
+        testGET(context, "/echo/hello", "hello", Server.OK_CODE, "test echo");
     }
 
     @Test
@@ -47,8 +47,8 @@ public class ShortURLVerticleTest {
 
     @Test
     public void testNotHealthy(TestContext context) {
-//        dbMock.connectionHandler = dbMock.handler(true, "db is down");
-//        testGET(context, "/health", null, Server.E, "test not health");
+        dbMock.connectionHandler = dbMock.handler(true, "db is down");
+        testGET(context, "/health", null, Server.ERROR_CODE, "test not health");
     }
 
     private void testGET(TestContext context, String url, String resBody, Integer statusCode, String desc) {
