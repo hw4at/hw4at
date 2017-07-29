@@ -20,18 +20,7 @@ public class ShortURLVerticleIT {
     }
 
     @Test
-    public void checkThatWeCanRetrieveIndividualProduct() {
-        int id = get("/api/whiskies").then().assertThat()
-                .statusCode(200)
-                .extract()
-                .jsonPath().getInt("find { it.name=='Bowmore 15 Years Laimrig' }.id");
-        // Now get the individual resource and check the content
-        get("/api/whiskies/" + id).then()
-                .assertThat()
-                .statusCode(200)
-                .body("name", equalTo("Bowmore 15 Years Laimrig"))
-                .body("origin", equalTo("Scotland, Islay"))
-                .body("id", equalTo(id));
+    public void simpleTest() {
     }
 
     @AfterClass
