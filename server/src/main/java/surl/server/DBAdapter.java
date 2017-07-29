@@ -12,4 +12,6 @@ public interface DBAdapter {
     void connect(BiConsumer<String, Throwable> errHandler, Consumer<SQLConnection> conHandler);
 
     void query(SQLConnection con, String query, BiConsumer<String, Throwable> errHandler, Consumer<List<JsonObject>> resHandler);
+
+    void update(SQLConnection con, String sql, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandle);
 }

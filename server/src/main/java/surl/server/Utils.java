@@ -9,10 +9,6 @@ public class Utils {
     private Utils() {
     }
 
-    public interface Done {
-        void handle();
-    }
-
     public enum ErrCode {
         E133, E134, E135, E291;
 

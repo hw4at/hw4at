@@ -69,7 +69,7 @@ public class ShortURLServer {
     protected void createBookmark(RoutingContext ctx) {
         try {
             JsonObject json = serverAdapter.getBodyAsJson(ctx);
-            controller.createBookmark(json, errorHandler(ctx), okHandler(ctx));
+            controller.createBookmark(json, errorHandler(ctx), stringHandler(ctx));
         } catch(Exception e) {
             serverAdapter.respond(ctx, ERROR_CODE, "Invalid input");
         }
@@ -90,6 +90,10 @@ public class ShortURLServer {
         db.testConnection(dbTest);
     }
 
+    private Consumer<String> stringHandler(RoutingContext ctx) {
+        return res -> serverAdapter.respond(ctx, OK_CODE, res);
+    }
+
     private Consumer<String> jsonHandler(RoutingContext ctx) {
         return res -> serverAdapter.respondAsJson(ctx, OK_CODE, res);
     }
@@ -98,7 +102,7 @@ public class ShortURLServer {
         return (msg, e) -> serverAdapter.respond(ctx, ERROR_CODE, msg);
     }
 
-    private Utils.Done okHandler(RoutingContext ctx) {
-        return () -> serverAdapter.respond(ctx, OK_CODE, OK_BODY);
+    private Consumer<Integer> okHandler(RoutingContext ctx) {
+        return count -> serverAdapter.respond(ctx, OK_CODE, OK_BODY);
     }
 }

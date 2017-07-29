@@ -5,7 +5,9 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
@@ -16,17 +18,22 @@ import java.io.IOException;
 @RunWith(VertxUnitRunner.class)
 public class ShortURLVerticleTest {
 
-    private static DBAdapterMock dbMock;
+    private static DBAdapterProxy db;
 
     private static Vertx vertx;
     private static HttpClient client;
 
     @BeforeClass
     public static void before() throws IOException {
-        dbMock = new DBAdapterMock();
-        DBServiceHolder.db = new DBService(dbMock);
+        db = new DBAdapterProxy();
+        ShortURLVerticle shortURLVerticle = new ShortURLVerticle() {
+            @Override
+            protected DBService createDBService() throws IOException {
+                return new DBService(db);
+            }
+        };
+
         vertx = Vertx.vertx();
-        ShortURLVerticle shortURLVerticle = new ShortURLVerticle();
         vertx.deployVerticle(shortURLVerticle);
         client = vertx.createHttpClient();
     }
@@ -49,13 +56,13 @@ public class ShortURLVerticleTest {
 
     @Test
     public void testNotHealthy(TestContext context) {
-        dbMock.connectionHandler = dbMock.handler(true, "db is down");
+        db.connectHandler = (err, con) -> err.accept("db is down", null);
         testGET(context, "/health", null, ShortURLServer.ERROR_CODE, "test not health");
     }
 
     private void testGET(TestContext context, String url, String resBody, Integer statusCode, String desc) {
         Async async = context.async();
-        client.getNow(ConfigurationServiceHolder.config.getServerPort(), "localhost", url, res -> {
+        client.getNow(ConfigurationService.config.getServerPort(), "localhost", url, res -> {
             res.bodyHandler(body -> {
                 try {
                     if (statusCode != null) {
@@ -65,7 +72,7 @@ public class ShortURLVerticleTest {
                         context.assertEquals(resBody, body.toString(), desc);
                     }
                 } finally {
-                    dbMock.reset();
+                    db.reset();
                     async.complete();
                 }
             });

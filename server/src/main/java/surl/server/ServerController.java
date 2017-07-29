@@ -1,6 +1,5 @@
 package surl.server;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -16,19 +15,28 @@ public class ServerController {
     private static final Pattern VALUE_PATTERN = Pattern.compile("^[a-zA-Z0-9]+$");
     private static final UrlValidator URL_VALIDATOR = new UrlValidator();
 
+    private static final String USER = "user", NAME = "name", URL = "url", SHORT_URL = "short_url", FULL_URL = "full_url";
+
     private DBService db;
 
     public ServerController(DBService db) {
         this.db = db;
     }
 
-    public void createBookmark(JsonObject bookmark, BiConsumer<String, Throwable> errHandler, Utils.Done doneHandler) {
-        String user, String name, String shortUrl, String fullUrl;
+    public void createBookmark(JsonObject bookmark, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {
+        String user = bookmark.getString(USER);
+        String name = bookmark.getString(NAME);
+        String fullUrl = bookmark.getString(URL);
+
         if (isNotValidValue(user) || isNotValidValue(name) || isNotValidURL(fullUrl)) {
-            logger.info("Invalid new bookmark request. user = %s, name = %s, url = %s", user, name, fullUrl);
-            handler.accept("Invalid values");
+            logger.info("Invalid create bookmark request. user = %s, name = %s, url = %s", user, name, fullUrl);
+            errHandler.accept("Invalid values", null);
             return;
         }
+
+        String shortUrl = null;
+
+        db.createBookmark(user, name, shortUrl, fullUrl, errHandler, res -> resHandler.accept(shortUrl));
     }
 
     public void getAllBookmarks(String user, BiConsumer<String, Throwable> errHandler, Consumer<String> resHandler) {

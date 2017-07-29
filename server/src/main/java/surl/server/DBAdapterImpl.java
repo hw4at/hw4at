@@ -42,4 +42,16 @@ public class DBAdapterImpl implements DBAdapter {
             }
         });
     }
+
+    @Override
+    public void update(SQLConnection con, String sql, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandle) {
+        con.update(sql, res -> {
+            if (res.failed()) {
+                logger.error("Failed to execute sql: " + sql, res.cause());
+                errHandler.accept(Utils.ErrCode.E135.oops(), res.cause());
+            } else {
+                resHandle.accept(res.result().getUpdated());
+            }
+        });
+    }
 }

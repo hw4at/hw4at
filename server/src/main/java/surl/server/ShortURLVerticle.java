@@ -5,17 +5,19 @@ import io.vertx.core.Future;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.io.IOException;
+
 public class ShortURLVerticle extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(ShortURLVerticle.class);
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
-        ConfigurationServiceHolder.init();
+        ConfigurationService.init();
+        DBService db = createDBService();
+        new ShortURLServer(new ServerAdapterImpl(), new ServerController(db), db).start(vertx, startFuture);
+    }
 
-        if (DBServiceHolder.db == null) {
-            DBServiceHolder.db = new DBService(new DBAdapterFactory().createDBAdapter(vertx));
-        }
-
-        new ShortURLServer().run(vertx, startFuture, new ServerAdapterImpl());
+    protected DBService createDBService() throws IOException {
+        return new DBService(new DBAdapterFactory().createDBAdapter(vertx));
     }
 }

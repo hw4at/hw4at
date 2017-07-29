@@ -16,13 +16,9 @@ import static surl.server.Utils.ErrCode;
 public class DBService {
     private static final Logger logger = LoggerFactory.getLogger(DBService.class);
 
-
-
     private static final String NEW_BOOKMARKS_SQL = "INSERT INTO bookmarks (user, name, short_url, full_url) VALUES ('%s', '%s', '%s', '%s');";
     private static final String ALL_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks";
     private static final String ALL_USER_BOOKMARKS_SQL = "SELECT name, short_url, full_url FROM bookmarks WHERE user = '%s'";
-
-    private static final String USER = "user", NAME = "name", SHORT_URL = "short_url", FULL_URL = "full_url";
 
     private DBAdapter adapter;
 
@@ -34,29 +30,22 @@ public class DBService {
         adapter.connect((msg, e) -> future.fail(msg), h -> future.complete());
     }
 
-    public void createBookmark(String user, String name, String shortUrl, String fullUrl, BiConsumer<String, Throwable> errHandler, Consumer<String> handler) {
-        String encUrl = null;
-        try {
-            encUrl = URLEncoder.encode(fullUrl, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.info("Unable to encode URL: " + fullUrl, e);
-            errHandler.accept("Invalid values", null);
-        }
-
-        String actualUrl = encUrl;
+    public void createBookmark(String user, String name, String shortUrl, String fullUrl, BiConsumer<String, Throwable> errHandler, Consumer<Integer> resHandler) {
+        String sql = String.format(NEW_BOOKMARKS_SQL, user, name, shortUrl, fullUrl);
+        adapter.connect(errHandler, con -> adapter.update(con, sql, errHandler, resHandler));
     }
 
     public void getAllBookmarks(String user, BiConsumer<String, Throwable> errHandler, Consumer<JsonArray> resHandler) {
-        String query = null;
+        String sql = null;
         if (Utils.isEmpty(user)) {
-            query = ALL_BOOKMARKS_SQL;
+            sql = ALL_BOOKMARKS_SQL;
         } else {
-            query = String.format(ALL_USER_BOOKMARKS_SQL, user);
+            sql = String.format(ALL_USER_BOOKMARKS_SQL, user);
         }
 
-        String actualQuery = query;
+        String actualSql = sql;
         adapter.connect(errHandler, con -> {
-            adapter.query(con, actualQuery, errHandler, res -> {
+            adapter.query(con, actualSql, errHandler, res -> {
                 JsonArray array = new JsonArray();
                 res.forEach(r -> array.add(r));
                 resHandler.accept(array);
